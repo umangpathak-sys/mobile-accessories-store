@@ -1,0 +1,76 @@
+<%- include('partials/head') %>
+
+<a class="back" href="/">← Back to catalog</a>
+
+<section class="product">
+  <img class="product-image" src="<%= product.image %>" alt="<%= product.name %>">
+  <div class="product-detail">
+    <h1><%= product.name %></h1>
+    <p class="brand"><%= product.brand %> · ★ <%= product.rating.toFixed(1) %></p>
+    <p><%= product.description %></p>
+
+    <% if (error) { %>
+      <p class="error" data-testid="config-error"><%= error %></p>
+    <% } %>
+
+    <form method="post" action="/cart/add" id="configure-form">
+      <input type="hidden" name="productId" value="<%= product.id %>">
+
+      <label class="field">
+        Device
+        <select name="deviceId" data-testid="device-select" required>
+          <option value="">Select your device</option>
+          <% devices.forEach(function (d) { %>
+            <option value="<%= d.id %>" <%= selectedDevice === d.id ? 'selected' : '' %>>
+              <%= d.name %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+
+      <% product.options.forEach(function (option) { %>
+        <label class="field">
+          <%= option.name %><%= option.required ? '' : ' (optional)' %>
+          <select name="option_<%= option.id %>" data-testid="option-<%= option.id %>" <%= option.required ? 'required' : '' %>>
+            <% if (!option.required) { %><option value="">No thanks</option><% } %>
+            <% option.values.forEach(function (v) { %>
+              <option value="<%= v.id %>" data-delta="<%= v.priceDelta %>" <%= submitted[option.id] === v.id ? 'selected' : '' %>>
+                <%= v.name %><%= v.priceDelta ? ' (+' + currency(v.priceDelta) + ')' : '' %>
+              </option>
+            <% }) %>
+          </select>
+        </label>
+      <% }) %>
+
+      <label class="field qty">
+        Quantity
+        <input type="number" name="quantity" min="1" max="10" value="<%= submitted.quantity || 1 %>" data-testid="quantity">
+      </label>
+
+      <p class="price big">Price: <span data-testid="configured-price" id="configured-price"><%= currency(product.basePrice) %></span></p>
+      <button class="button primary" type="submit" data-testid="add-to-cart">Add to cart</button>
+    </form>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var base = <%- JSON.stringify(product.basePrice) %>;
+    var form = document.getElementById('configure-form');
+    var out = document.getElementById('configured-price');
+    function update() {
+      var total = base;
+      form.querySelectorAll('select[name^="option_"]').forEach(function (select) {
+        var opt = select.options[select.selectedIndex];
+        if (opt && opt.dataset.delta) total += parseFloat(opt.dataset.delta);
+      });
+      var qty = parseInt(form.querySelector('[name="quantity"]').value, 10) || 1;
+      out.textContent = '$' + (total * qty).toFixed(2);
+    }
+    form.addEventListener('change', update);
+    form.addEventListener('input', update);
+    update();
+  })();
+</script>
+
+<%- include('partials/foot') %>

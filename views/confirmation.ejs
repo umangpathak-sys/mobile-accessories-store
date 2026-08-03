@@ -1,0 +1,28 @@
+<%- include('partials/head') %>
+
+<section class="confirmation">
+  <h1 data-testid="order-confirmed">Thank you, <%= order.customer.fullName.split(' ')[0] %>!</h1>
+  <p>Your order <strong data-testid="order-id"><%= order.id %></strong> is confirmed. A receipt was sent to <%= order.customer.email %>.</p>
+
+  <h2>Items</h2>
+  <ul class="mini-items">
+    <% order.items.forEach(function (line) { %>
+      <li><%= line.quantity %> × <%= line.productName %> <span class="meta">(<%= line.deviceName %><% line.options.forEach(function (o) { %> · <%= o.valueName %><% }) %>)</span>
+        <strong><%= currency(line.unitPrice * line.quantity) %></strong></li>
+    <% }) %>
+  </ul>
+
+  <% var totals = order.totals %>
+  <%- include('partials/totals', { totals: order.totals }) %>
+
+  <h2>Shipping to</h2>
+  <address>
+    <%= order.customer.address1 %><% if (order.customer.address2) { %>, <%= order.customer.address2 %><% } %><br>
+    <%= order.customer.city %>, <%= order.customer.postalCode %><br>
+    <%= order.customer.country %>
+  </address>
+  <p class="meta">Paid with card ending <%= order.payment.last4 %></p>
+  <a class="button" href="/">Continue shopping</a>
+</section>
+
+<%- include('partials/foot') %>

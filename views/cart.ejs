@@ -1,0 +1,66 @@
+<%- include('partials/head') %>
+
+<h1>Your cart</h1>
+
+<% if (error) { %>
+  <p class="error" data-testid="cart-error"><%= error %></p>
+<% } %>
+
+<% if (cart.length === 0) { %>
+  <p class="empty" data-testid="empty-cart">Your cart is empty. <a href="/">Browse accessories</a>.</p>
+<% } else { %>
+  <div class="cart-layout">
+    <ul class="cart-items">
+      <% cart.forEach(function (line) { %>
+        <li class="cart-item" data-testid="cart-item">
+          <img src="<%= line.image %>" alt="<%= line.productName %>">
+          <div class="cart-item-body">
+            <h2><%= line.productName %></h2>
+            <p class="meta">For <%= line.deviceName %></p>
+            <% if (line.options.length) { %>
+              <p class="meta">
+                <% line.options.forEach(function (o, i) { %><%= i ? ' · ' : '' %><%= o.optionName %>: <%= o.valueName %><% }) %>
+              </p>
+            <% } %>
+            <p class="price"><%= currency(line.unitPrice) %> each</p>
+          </div>
+          <div class="cart-item-actions">
+            <form method="post" action="/cart/update" class="inline">
+              <input type="hidden" name="key" value="<%= line.key %>">
+              <input type="number" name="quantity" min="0" max="10" value="<%= line.quantity %>" data-testid="line-quantity">
+              <button type="submit" data-testid="update-quantity">Update</button>
+            </form>
+            <form method="post" action="/cart/remove" class="inline">
+              <input type="hidden" name="key" value="<%= line.key %>">
+              <button type="submit" class="link" data-testid="remove-item">Remove</button>
+            </form>
+            <p class="line-total" data-testid="line-total"><%= currency(line.unitPrice * line.quantity) %></p>
+          </div>
+        </li>
+      <% }) %>
+    </ul>
+
+    <aside class="summary">
+      <h2>Order summary</h2>
+      <% if (totals.freeShippingRemaining > 0 && totals.shippingMethod === 'standard') { %>
+        <p class="hint">Add <%= currency(totals.freeShippingRemaining) %> more for free standard shipping.</p>
+      <% } %>
+
+      <form method="post" action="/cart/shipping" class="shipping-form">
+        <label><input type="radio" name="shipping" value="standard" <%= shipping === 'standard' ? 'checked' : '' %>> Standard (3-5 days)</label>
+        <label><input type="radio" name="shipping" value="express" <%= shipping === 'express' ? 'checked' : '' %>> Express (1-2 days)</label>
+        <button type="submit" data-testid="update-shipping">Update shipping</button>
+      </form>
+
+      <form method="post" action="/cart/promo" class="promo-form">
+        <input type="text" name="promoCode" placeholder="Promo code" value="<%= totals.promo ? totals.promo.code : '' %>" data-testid="promo-input">
+        <button type="submit" data-testid="apply-promo">Apply</button>
+      </form>
+
+      <%- include('partials/totals', { totals: totals }) %>
+      <a class="button primary block" href="/checkout" data-testid="checkout-link">Checkout</a>
+    </aside>
+  </div>
+<% } %>
+
+<%- include('partials/foot') %>
