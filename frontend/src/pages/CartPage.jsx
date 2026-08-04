@@ -100,9 +100,10 @@ export default function CartPage() {
 
           <form
             className="promo-form"
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
-              setPromo(promoInput);
+              const applied = await setPromo(promoInput);
+              if (!applied) setPromoInput(cart.promoCode || '');
             }}
           >
             <input

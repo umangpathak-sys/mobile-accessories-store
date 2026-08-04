@@ -24,8 +24,9 @@ export default function CheckoutPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [placed, setPlaced] = useState(false);
 
-  if (cart.items.length === 0) return <Navigate to="/cart" replace />;
+  if (cart.items.length === 0 && !placed) return <Navigate to="/cart" replace />;
 
   const update = (name) => (event) => setForm({ ...form, [name]: event.target.value });
 
@@ -44,8 +45,9 @@ export default function CheckoutPage() {
     setFieldErrors({});
     try {
       const order = await api.checkout(form);
-      await refresh();
+      setPlaced(true);
       navigate(`/orders/${order.id}`);
+      refresh();
     } catch (err) {
       setFieldErrors(err.fieldErrors || {});
       setError(err.message);
