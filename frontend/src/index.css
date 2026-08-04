@@ -106,3 +106,5 @@ button.link { border: none; background: none; color: var(--muted); text-decorati
   .product, .cart-layout { grid-template-columns: 1fr; }
   .summary { position: static; }
 }
+
+.loading { color: var(--muted); padding: 24px 0; }

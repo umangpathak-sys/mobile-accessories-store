@@ -4,7 +4,11 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "prestart": "npm run build",
+    "build": "npm --prefix frontend run build",
+    "postinstall": "npm --prefix frontend install",
+    "dev:api": "node --watch src/server.js",
+    "dev:web": "npm --prefix frontend run dev",
     "test": "jest",
     "lint": "eslint ."
   },
@@ -13,12 +17,13 @@
   "license": "MIT",
   "description": "Node.js storefront for Apple and Android mobile accessories",
   "dependencies": {
-    "ejs": "^6.0.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "jest": "^30.4.2",
     "supertest": "^7.2.2"
   }
