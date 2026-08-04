@@ -1,2 +1,4 @@
 node_modules
 coverage
+frontend/dist
+frontend/node_modules
